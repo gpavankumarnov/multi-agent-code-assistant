@@ -1,2 +1,8 @@
 
 streamlit
+langgraph
+langchain
+langchain-openai
+pydantic
+chromadb
+sentence-transformers
