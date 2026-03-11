@@ -2,18 +2,20 @@ from orchestrator.graph import build_graph
 from orchestrator.state import AgentState
 
 
-def run_agent(repo_path: str, issue: str):
+def run_agent(local_repo_path: str, issue: str, repo_url: str = ""):
 
     # call build_graph func
     graph = build_graph()
 
     initial_state: AgentState = {
-        "repo_path": repo_path,
+        "local_repo_path": local_repo_path,
+        "repo_url": repo_url,
         "issue": issue,
         "code_context": None,
         "plan": None,
         "patch": None,
         "tests": None,
+        "test_output": None,
         "pr_url": None,
     }
 

@@ -6,3 +6,8 @@ langchain-openai
 pydantic
 chromadb
 sentence-transformers
+fastapi
+uvicorn
+requests
+python-dotenv
+pytest
