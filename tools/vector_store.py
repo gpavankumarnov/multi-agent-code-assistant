@@ -16,7 +16,7 @@ error message → embedding → similar code files
 
 # This creates a connection to the Chroma database.
 # By default it runs in-memory locally unless configured for persistence.
-client = chromadb.client()
+client = chromadb.Client()
 
 # This code initializes an embedding function using the all-MiniLM-L6-v2 sentence-transformer model from Hugging Face.
 # This class from chromadb.utils acts as a wrapper around the sentence-transformers library to make it compatible with ChromaDB, enabling automatic vectorization of text data.
@@ -177,12 +177,48 @@ def search_code(query, top_k=3):
     results = collection.query(
         query_texts=[query], n_results=top_k  # like LIMIT in SQL
     )
-    return results
+
+    """
+    why we need below code, we can directly return right?
+    The problem is that search_code() 
+    returns the raw ChromaDB query result (which contains metadata), 
+    not the actual file contents with file paths
+
+    Now let's improve the prompt in the code_writer agent to ensure the LLM provides the actual file path from the context:
+    
+    key Fixes Applied
+Vector Store (vector_store.py:175-191)
+Now returns formatted results with file paths: "File: /path/to/file.py\n\ncode..."
+LLM can now see actual file paths to use in the response
+Code Writer Prompt (code_writer.py:43-68)
+Fixed f-string formatting by escaping curly braces {{ and }} in prompt -> code_context
+Added explicit instructions to extract EXACT file path from code context
+Emphasized JSON-only output
+File Editor (file_editor.py:4-25)
+Handles both absolute and relative file paths
+Converts absolute paths to relative paths automatically
+Creates missing directories before writing files
+JSON Extraction (code_writer.py:7-14)
+Uses regex fallback to extract JSON from LLM responses
+Catches specific json.JSONDecodeError instead of bare except
+    """
+
+    # Format results properly with file paths and code
+    formatted_results = []
+
+    if results and "documents" in results and results["documents"]:
+        documents = results["documents"][0]  # First query result
+        ids = results["ids"][0]  # File paths
+
+        for file_path, code in zip(ids, documents):
+            formatted_results.append(f"File: {file_path}\n\n{code}")
+
+    return formatted_results
 
 
 """ Example
 [
- "login_controller.py code...",
- "auth_service.py code..."
+ "File: /repo/service/auth.py\n\ndef login()...",
+ "File: /repo/models/user.py\n\nclass User..."
 ]
 """

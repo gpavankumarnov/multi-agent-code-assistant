@@ -3,7 +3,7 @@ from orchestrator.state import AgentState
 from agents.code_reader import code_reader_agent
 from agents.planner import planner_agent
 from agents.code_writer import code_writer_agent
-from agents.test_writer import test_writer_agent
+from agents.test_writer import test_agent
 from agents.pr_agent import pr_agent
 
 """
@@ -25,7 +25,7 @@ def build_graph():
     workflow.add_node("reader", code_reader_agent)
     workflow.add_node("planner", planner_agent)
     workflow.add_node("writer", code_writer_agent)
-    workflow.add_node("tester", test_writer_agent)
+    workflow.add_node("tester", test_agent)
     workflow.add_node("pr", pr_agent)
 
     # set entry point

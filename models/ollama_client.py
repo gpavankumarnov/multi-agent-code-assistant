@@ -1,20 +1,43 @@
 import os
 import requests
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
-load_dotenv()
+load_dotenv(find_dotenv())
 
 
 class LLM:
 
     def invoke(self, prompt):
+        url = os.getenv("OLLAMA_BASE_URL")
 
-        response = requests.post(
-            os.getenv("OLLAMA_BASE_URL"),
-            json={"model": "llama3.2", "prompt": prompt, "stream": False},
+        if not url:
+            raise ValueError("OLLAMA_BASE_URL not set in environment")
+
+        payload = {
+            "model": "deepseek-coder:6.7b",
+            "prompt": prompt,
+            "stream": False,
+            "options": {
+                "num_predict": 8192,  # Allow up to 8192 tokens in response
+                "temperature": 0.1,  # Lower temperature for more consistent output
+            },
+        }
+
+        print(
+            f"DEBUG: Sending request with num_predict={payload['options']['num_predict']}"
         )
 
-        return response.json()["response"]
+        response = requests.post(url, json=payload)
+
+        if response.status_code != 200:
+            raise ValueError(
+                f"Ollama API error: {response.status_code} - {response.text}"
+            )
+
+        result = response.json()["response"]
+        print(f"DEBUG: Received response with {len(result)} characters")
+
+        return result
 
 
 llm = LLM()

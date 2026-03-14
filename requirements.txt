@@ -1,13 +1,14 @@
 
-streamlit
-langgraph
-langchain
-langchain-openai
-pydantic
-chromadb
-sentence-transformers
-fastapi
-uvicorn
-requests
-python-dotenv
-pytest
+streamlit>=1.28.0
+langgraph>=0.0.40
+langchain>=0.1.0
+langchain-openai>=0.0.5
+pydantic>=2.0.0
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+requests>=2.31.0
+python-dotenv>=1.0.0
+pytest>=7.4.0
+pytest-asyncio>=0.21.0

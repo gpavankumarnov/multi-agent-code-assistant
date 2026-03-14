@@ -40,7 +40,19 @@ def code_reader_agent(state):
 
     context = "\n\n".join(relevant_files)
 
-    return {"code_context": context}
+    # Create a summary of what vector DB returned
+    vector_db_summary = (
+        f"Vector DB found {len(relevant_files)} relevant file(s) for the issue:\n"
+    )
+    for i, file_content in enumerate(relevant_files, 1):
+        # Extract file path from the content (format: "File: /path/to/file.py\n\ncode...")
+        if file_content.startswith("File: "):
+            file_path = file_content.split("\n")[0].replace("File: ", "")
+            vector_db_summary += f"{i}. {file_path}\n"
+
+    print(f"\n{vector_db_summary}")
+    print("✅ Reader Agent - Completed")
+    return {"code_context": context, "vector_db_results": vector_db_summary}
 
     # Now the next agents receive only relevant code context.
 

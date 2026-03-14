@@ -20,4 +20,5 @@ Create a step-by-step plan to fix this issue.
 
     plan = llm.invoke(prompt)
 
+    print("✅ Planner Agent - Completed")
     return {"plan": plan}

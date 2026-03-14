@@ -60,7 +60,26 @@ def pr_agent(state):
 
     response = requests.post(pr_api, headers=headers, json=data)
 
-    return {"status": "PR created", "pr_url": response.json()["html_url"]}
+    # Check if request was successful
+    if response.status_code == 201:
+        pr_url = response.json().get("html_url", "PR created but URL not available")
+        print("✅ PR Agent - Completed")
+        return {"status": "PR created", "pr_url": pr_url}
+    else:
+        error_msg = response.json().get("message", "Unknown error")
+        print(f"GitHub API response: {response.status_code} - {error_msg}")
+
+        # If PR already exists
+        if "already exists" in error_msg.lower() or response.status_code == 422:
+            existing_pr_url = f"https://github.com/{owner}/{repo_name}/pulls"
+            return {"status": "PR already exists", "pr_url": existing_pr_url}
+
+        # If branch was pushed, provide compare URL for manual PR
+        compare_url = (
+            f"https://github.com/{owner}/{repo_name}/compare/ai-fix-branch?expand=1"
+        )
+        print("✅ PR Agent - Completed")
+        return {"status": f"PR creation failed: {error_msg}", "pr_url": compare_url}
 
 
 """

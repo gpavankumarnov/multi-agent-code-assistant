@@ -7,7 +7,7 @@ import subprocess
 def test_agent(state):
 
     issue = state["issue"]
-    code_patch = state["code_patch"]
+    patch = state["patch"]
     local_repo_path = state["local_repo_path"]
 
     prompt = f"""
@@ -17,7 +17,7 @@ Issue:
 {issue}
 
 Updated Code:
-{code_patch}
+{patch}
 
 Write a pytest unit test that validates the fix.
 
@@ -29,12 +29,13 @@ Return ONLY the test code.
     test_file = os.path.join(local_repo_path, "test_ai_fix.py")
 
     with open(test_file, "w") as f:
-        f.write(test_code.content)
+        f.write(test_code)
 
     result = subprocess.run(
         ["pytest"], cwd=local_repo_path, capture_output=True, text=True
     )
 
+    print("✅ Tester Agent - Completed")
     return {"test_file": test_file, "test_output": result.stdout}
 
 
@@ -44,9 +45,8 @@ State becomes:
 {
  "local_repo_path": "...",
  "issue": "...",
- "code_context": "...",
- "plan": "...",
- "code_patch": "...",
+
+ "patch": "...",
  "test_file": "repo/test_ai_fix.py",
  "test_output": "..."
 }
